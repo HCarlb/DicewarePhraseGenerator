@@ -1,0 +1,163 @@
+﻿<Window x:Class="DicewareGenerator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DicewareGenerator"
+        FontSize="14"
+        FontFamily="Segoe UI"
+        mc:Ignorable="d"
+        Title="A Diceware inspired Passphrase Generator"
+        Height="600"
+        Width="700"
+        Background="#FFEAE7E4">
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="TextWrapping" Value="NoWrap" />
+            <Setter Property="Background" Value="#FFFAFBF5" />
+            <Setter Property="Padding" Value="10 3" />
+            <Setter Property="FontFamily" Value="Cascadia Code" />
+            <Setter Property="MinWidth" Value="50" />
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}" x:Key="SettingsInput">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Right" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="H2">
+            <Setter Property="FontFamily" Value="Segoe UI" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style TargetType="TextBlock" BasedOn="{StaticResource H2}" x:Key="H1">
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0 0 0 15" />
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="15 5" />
+        </Style>
+
+        <Style TargetType="TextBox" x:Key="PasswordOutput" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="MinHeight" Value="200" />
+            <Setter Property="IsReadOnly" Value="True" />
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+        </Style>
+    </Window.Resources>
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="230" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <DockPanel Grid.Column="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0">
+                    <Grid Margin="0 0 0 20">
+                        <TextBlock Text="Settings" Style="{StaticResource H1}" />
+                    </Grid>
+
+                    <!-- Picking the wordlist -->
+                    <TextBlock Text="Wordlist" Style="{StaticResource H2}" />
+                    <StackPanel Margin="0 5 0 0">
+                        <Grid>
+                            <TextBox d:Text="wordlist.txt" Text="wordlist.txt" Margin="0 3" />
+                            <ComboBox ItemsSource="{Binding WordlistItemsSource}"
+                                      SelectedItem="{Binding SelectedWordlist}"
+                                      DisplayMemberPath="Key"
+                                      IsReadOnly="True" />
+                        </Grid>
+                        <WrapPanel>
+                            <Button Content="Open Folder" Click="Button_OpenWordlistFolder_Clicked" />
+                        </WrapPanel>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Row="2">
+                    <TextBlock Text="Minimum requirements" Style="{StaticResource H2}" />
+                </StackPanel>
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="20" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- The Minimum Requirements -->
+                    <TextBox d:Text="99" Text="{Binding MinWords}" Style="{StaticResource SettingsInput}" Grid.Row="0" Grid.Column="0" MaxLength="2" />
+                    <Label Content="Words" Grid.Row="0" Grid.Column="1" />
+
+                    <TextBox d:Text="99" Text="{Binding MinCharacters}" Style="{StaticResource SettingsInput}" Grid.Row="2" Grid.Column="0" MaxLength="2" />
+                    <Label Content="Characters" Grid.Row="2" Grid.Column="1" />
+
+                    <!--<TextBox d:Text="99" Text="{Binding MinNumeric}" Style="{StaticResource SettingsInput}" Grid.Row="4" Grid.Column="0" MaxLength="2" />
+                    <Label Content="Numbers" Grid.Row="4" Grid.Column="1" />
+
+                    <TextBox d:Text="99" Text="{Binding MinUppercase}" Style="{StaticResource SettingsInput}" Grid.Row="6" Grid.Column="0" MaxLength="2" />
+                    <Label Content="Uppercase" Grid.Row="6" Grid.Column="1" />
+
+                    <TextBox d:Text="99" Grid.Row="8" Text="{Binding MinSpecial}" Style="{StaticResource SettingsInput}" Grid.Column="0" MaxLength="2" />
+                    <Label Content="Specials" Grid.Row="8" Grid.Column="1" />-->
+
+                    <TextBox d:Text="-" Grid.Row="10" Text="{Binding WordSeparatorChar}" Style="{StaticResource SettingsInput}" Grid.Column="0" MaxLength="1" />
+                    <Label Content="Separator Char" Grid.Row="10" Grid.Column="1" />
+
+                    <StackPanel Grid.Row="12" Grid.ColumnSpan="2">
+                        <TextBlock Text="Generation" Style="{StaticResource H2}" />
+                    </StackPanel>
+                    <TextBox d:Text="99" Grid.Row="14" Text="{Binding NumberOfPhrasesToGenerate}" Style="{StaticResource SettingsInput}" Grid.Column="0" MaxLength="2" />
+                    <Label Content="Phrases to generate" Grid.Row="14" Grid.Column="1" />
+                </Grid>
+                <Grid Grid.Row="6">
+                    <Button Content="Generate phrases -->"
+                            Click="Button_GeneratePhrases_Clicked"
+                            IsEnabled="{Binding CanGeneratePhrases}" />
+                </Grid>
+            </Grid>
+        </DockPanel>
+
+        <!-- The passphrase output textbox-->
+        <DockPanel Grid.Column="2">
+            <TextBox d:Text="abam zero kafka box opioid zebra"
+                     Text="{Binding GeneratedPasswords}"
+                     Style="{StaticResource PasswordOutput}" />
+        </DockPanel>
+    </Grid>
+</Window>

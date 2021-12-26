@@ -1,0 +1,39 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DicewareGenerator.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="LoadedWordList" Type="System.String" Scope="User">
+      <Value Profile="(Default)">whole wordlistcontent here</Value>
+    </Setting>
+    <Setting Name="LastWordListPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\\Folders\\File.txt</Value>
+    </Setting>
+    <Setting Name="MinCharacters" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20</Value>
+    </Setting>
+    <Setting Name="MinWords" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="MinUppercase" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="MinNumeric" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="MinSpecial" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="NumberOfPhrasesToGenerate" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="DefaultWordlistsPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">wordlists</Value>
+    </Setting>
+    <Setting Name="WordlistExtension" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.wordlist</Value>
+    </Setting>
+    <Setting Name="WordSeparator" Type="System.String" Scope="User">
+      <Value Profile="(Default)">" "</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
