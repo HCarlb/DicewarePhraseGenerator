@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 
 [assembly: InternalsVisibleTo("DicewareGeneratorTest")]
@@ -26,8 +27,10 @@ namespace DicewareGenerator
         private string? _currentAppFolder;
 
         private string? _currentWordlistFolder;
-        private int _diceCount;
+
+        //private int _diceCount;
         private string? _generatedPasswords;
+
         private List<DiceWordModel>? _loadedWords;
         private int _minCharacters;
         private int _minNumeric;
@@ -40,6 +43,7 @@ namespace DicewareGenerator
         private List<ComboBoxItem>? _wordlistItemsSource;
         private string? _wordSeparatorChar;
         private readonly DiceService _diceService;
+        private readonly WordlistReader _wordistReaderService;
 
         public bool CanGeneratePhrases => CanGeneratePhrasesValidation();
 
@@ -133,11 +137,19 @@ namespace DicewareGenerator
             {
                 _selectedComboBoxItem = value;
                 OnPropertyChanged(nameof(SelectedWordlist));
-                if (value != null)
-                {
-                    ParseWordlist(LoadWordlist(value.Value.ToString()));
-                }
+
+                // Selection changed load a new wordlist
+                if (value != null) LoadNewWordlistAsync(value);
             }
+        }
+
+        private async void LoadNewWordlistAsync(ComboBoxItem? comboboxItem)
+        {
+            var wordList = await Task.Run(() => WordlistReader.LoadWordlist(comboboxItem.Value.ToString()));
+            var diceWordList = await Task.Run(() => WordlistReader.ParseWordlist(wordList));
+
+            // Update the loadedwords so the UI is updated
+            LoadedWords = diceWordList;
         }
 
         public string? SelectedWordlistFile
@@ -176,8 +188,8 @@ namespace DicewareGenerator
         {
             InitializeComponent();
             this.DataContext = this;
-            _diceService = new DiceService();
-            //_rnd = new Random();
+            _diceService = new();
+            _wordistReaderService = new();
             SettingsLoad();
             WordSeparatorChar = " ";    // Part of a ugly hack because the space " " wont work well stored in the app settings.
             InitializeFilestructure();
@@ -187,39 +199,49 @@ namespace DicewareGenerator
 
         private void Button_GeneratePhrases_Clicked(object sender, RoutedEventArgs e)
         {
-            if (_diceCount == 0)
+            if (LoadedWords == null || LoadedWords.Count == 0)
+            {
                 return;
+            }
 
+            // Look at the loeded worldist and learn how many dice that is used to generate words from this wordlist.
+            var diceCount = LoadedWords[0].DiceCount;
+
+            // Check so the user at lease have a character as separator. If not set it to a "space".
             if (string.IsNullOrEmpty(WordSeparatorChar))
             {
                 WordSeparatorChar = " ";
             }
 
-            var sb = new StringBuilder();
+            // Create a stringbuilde to store all the generated phrases
+            var generatedPhrases = new StringBuilder();
 
             for (int i = 0; i < NumberOfPhrasesToGenerate; i++)
             {
-                List<string> parts = new();
-                bool state = false;
-                while (!state)
+                var phraseList = new List<string>();
+                var phraseIsValid = false;
+
+                while (!phraseIsValid)
                 {
-                    string? word = GetWordFromWordlist(DiceService.DiceArrayToInt(_diceService.RollDice(_diceCount)));
+                    var diceValue = _diceService.GetDiceResult(diceCount);
+                    var word = GetWordFromWordlist(diceValue);
 
                     if (word != null)
                     {
-                        parts.Add(word);
-                        state = IsValidPassword(string.Join(WordSeparatorChar, parts));
-                    }
-                    else
-                    {
-                        throw new NullReferenceException("Null value found but not expected");
+                        phraseList.Add(word);
+
+                        // Test the phrase so it contain minimum requirements specified by user
+                        phraseIsValid = IsPhraseValid(string.Join(WordSeparatorChar, phraseList));
                     }
                 }
-                sb.AppendLine(string.Join(WordSeparatorChar, parts));
+                generatedPhrases.AppendLine(string.Join(WordSeparatorChar, phraseList));
             }
 
+            // Store settings to settings
             SettingsSave();
-            GeneratedPasswords = sb.ToString();
+
+            // Display the passphrases to the user
+            GeneratedPasswords = generatedPhrases.ToString();
         }
 
         private void Button_OpenWordlistFolder_Clicked(object sender, RoutedEventArgs e)
@@ -236,6 +258,8 @@ namespace DicewareGenerator
 
         #endregion WPF Buttons
 
+        #region WPF Form Validation
+
         private bool CanGeneratePhrasesValidation()
         {
             if ((MinWords > 0 || MinCharacters > 0) && (NumberOfPhrasesToGenerate > 0))
@@ -243,55 +267,7 @@ namespace DicewareGenerator
             return false;
         }
 
-        private void ParseWordlist(List<string>? rowdata)
-        {
-            if (rowdata == null)
-                throw new ArgumentNullException();
-
-            var words = new List<DiceWordModel>();
-            foreach (var row in rowdata)
-            {
-                var rowData = row.Trim().Split("\t");
-                words.Add(new DiceWordModel()
-                {
-                    DiceValues = long.Parse(rowData[0]),
-                    Word = rowData[1].Trim(),
-                });
-            }
-
-            if (words.Count > 0)
-            {
-                LoadedWords = words;
-
-                // Look at the first item to identify how many dice we need to roll to select a workd from the wordlist.
-                _diceCount = LoadedWords[0].DiceCount;
-            }
-        }
-
-        //internal static long DiceArrayToInt(int[] numbers)
-        //{
-        //    long result = 0;
-        //    for (int i = 0; i < numbers.Length; i++)
-        //    {
-        //        long multiplier = (long)Math.Pow(10, numbers.Length - 1 - i);
-        //        result += numbers[i] * multiplier;
-        //    }
-
-        //    return result;
-        //}
-
-        //internal int[] RollDice(int dices)
-        //{
-        //    var results = new List<int>();
-        //    for (int i = 0; i < dices; i++) results.Add(RollOneDice());
-
-        //    return results.ToArray();
-        //}
-
-        //internal int RollOneDice()
-        //{
-        //    return _rnd.Next(1, 7);
-        //}
+        #endregion WPF Form Validation
 
         internal void SettingsLoad()
         {
@@ -323,38 +299,6 @@ namespace DicewareGenerator
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        private static bool CheckIfLineIsIgnorable(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text)) return true;
-            if (string.IsNullOrEmpty(text)) return true;
-            if (text.Trim().Length == 0) return true;
-            if (text.Trim()[0..1] == "#") return true;
-            return false;
-        }
-
-        private static List<string>? LoadWordlist(string file)
-        {
-            if (!File.Exists(file))
-                throw new FileNotFoundException($"Cannot find file {file}");
-
-            var rows = new List<string>();
-            try
-            {
-                using var sr = new StreamReader(file);
-                while (sr.Peek() >= 0)
-                {
-                    var x = sr.ReadLine();
-                    if (x != null && !CheckIfLineIsIgnorable(x))
-                        rows.Add(x.Trim());
-                }
-                return rows;
-            }
-            catch (Exception)
-            {
-                throw new FileLoadException($"Failed to read file {file}");
-            }
-        }
-
         private static string? SelectFile()
         {
             var ofd = new OpenFileDialog()
@@ -372,7 +316,7 @@ namespace DicewareGenerator
 
         private string? GetWordFromWordlist(long value)
         {
-            return LoadedWords?.Where(x => x.DiceValues == value).Select(x => x.Word).SingleOrDefault(); ;
+            return LoadedWords?.Where(x => x.DiceValues == value).Select(x => x.Word).SingleOrDefault();
         }
 
         private void InitializeFilestructure()
@@ -413,7 +357,7 @@ namespace DicewareGenerator
             }
         }
 
-        private bool IsValidPassword(string password)
+        private bool IsPhraseValid(string password)
         {
             if (
                 password.Length >= MinCharacters &&
