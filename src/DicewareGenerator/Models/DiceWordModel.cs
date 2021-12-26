@@ -4,7 +4,7 @@ namespace DicewareGenerator.Models
 {
     public class DiceWordModel
     {
-        public Int64 DiceValues { get; set; }
+        public long DiceValues { get; set; }
         public string? Word { get; set; }
 
         public int DiceCount

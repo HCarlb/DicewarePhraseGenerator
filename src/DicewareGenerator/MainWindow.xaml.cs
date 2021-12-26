@@ -228,34 +228,6 @@ namespace DicewareGenerator
                 Process.Start("explorer.exe", @_currentWordlistFolder);
         }
 
-        //internal void Button_SelectFile_Clicked(object sender, RoutedEventArgs e)
-        //{
-        //    var f = SelectFile();
-        //    if (f == null)
-        //        return;
-
-        //    SelectedWordlistFile = f;
-
-        //    // Make objects out of the wordlist
-        //    var rows = LoadWordist(f);
-
-        //    if (rows == null)
-        //        return;
-
-        //    _words = new List<DiceWordModel>();
-        //    foreach (var row in rows)
-        //    {
-        //        var rowData = row.Trim().Split("\t");
-        //        _words.Add(new DiceWordModel()
-        //        {
-        //            DiceValues = Int64.Parse(rowData[0]),
-        //            Word = rowData[1].Trim(),
-        //        });
-        //    }
-
-        //    // Look at the first item to identify how many dice we need to roll to select a workd from the wordlist.
-        //    _diceCount = _words[0].DiceValues.ToString().Length;
-
         private bool CanGeneratePhrasesValidation()
         {
             if ((MinWords > 0 || MinCharacters > 0) && (NumberOfPhrasesToGenerate > 0))
@@ -263,10 +235,6 @@ namespace DicewareGenerator
             return false;
         }
 
-        //    // Store the data into settings for later use.
-        //    Settings.Default.LoadedWordList = string.Join(Environment.NewLine, rows);
-        //    SettingsSave();
-        //}
         private void ParseWordlist(List<string>? rowdata)
         {
             if (rowdata == null)
@@ -278,7 +246,7 @@ namespace DicewareGenerator
                 var rowData = row.Trim().Split("\t");
                 words.Add(new DiceWordModel()
                 {
-                    DiceValues = Int64.Parse(rowData[0]),
+                    DiceValues = long.Parse(rowData[0]),
                     Word = rowData[1].Trim(),
                 });
             }
@@ -294,12 +262,12 @@ namespace DicewareGenerator
 
         #endregion WPF Buttons
 
-        internal static Int64 DiceArrayToInt(int[] numbers)
+        internal static long DiceArrayToInt(int[] numbers)
         {
-            Int64 result = 0;
+            long result = 0;
             for (int i = 0; i < numbers.Length; i++)
             {
-                Int64 multiplier = (Int64)Math.Pow(10, numbers.Length - 1 - i);
+                long multiplier = (long)Math.Pow(10, numbers.Length - 1 - i);
                 result += numbers[i] * multiplier;
             }
 
@@ -398,7 +366,7 @@ namespace DicewareGenerator
             return null;
         }
 
-        private string? GetWordFromWordlist(Int64 value)
+        private string? GetWordFromWordlist(long value)
         {
             return LoadedWords?.Where(x => x.DiceValues == value).Select(x => x.Word).SingleOrDefault(); ;
         }
