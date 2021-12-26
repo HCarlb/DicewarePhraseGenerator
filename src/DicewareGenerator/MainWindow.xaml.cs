@@ -1,6 +1,7 @@
 ﻿using DicewareGenerator.Extensions;
 using DicewareGenerator.Models;
 using DicewareGenerator.Properties;
+using DicewareGenerator.Services;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -21,8 +22,9 @@ namespace DicewareGenerator
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private readonly Random _rnd;
+        //private readonly Random _rnd;
         private string? _currentAppFolder;
+
         private string? _currentWordlistFolder;
         private int _diceCount;
         private string? _generatedPasswords;
@@ -37,6 +39,7 @@ namespace DicewareGenerator
         private string? _selectedWordlistFile;
         private List<ComboBoxItem>? _wordlistItemsSource;
         private string? _wordSeparatorChar;
+        private readonly DiceService _diceService;
 
         public bool CanGeneratePhrases => CanGeneratePhrasesValidation();
 
@@ -131,7 +134,9 @@ namespace DicewareGenerator
                 _selectedComboBoxItem = value;
                 OnPropertyChanged(nameof(SelectedWordlist));
                 if (value != null)
+                {
                     ParseWordlist(LoadWordlist(value.Value.ToString()));
+                }
             }
         }
 
@@ -171,7 +176,8 @@ namespace DicewareGenerator
         {
             InitializeComponent();
             this.DataContext = this;
-            _rnd = new Random();
+            _diceService = new DiceService();
+            //_rnd = new Random();
             SettingsLoad();
             WordSeparatorChar = " ";    // Part of a ugly hack because the space " " wont work well stored in the app settings.
             InitializeFilestructure();
@@ -197,7 +203,7 @@ namespace DicewareGenerator
                 bool state = false;
                 while (!state)
                 {
-                    string? word = GetWordFromWordlist(DiceArrayToInt(RollDice(_diceCount)));
+                    string? word = GetWordFromWordlist(DiceService.DiceArrayToInt(_diceService.RollDice(_diceCount)));
 
                     if (word != null)
                     {
@@ -227,6 +233,8 @@ namespace DicewareGenerator
             if (Directory.Exists(_currentWordlistFolder))
                 Process.Start("explorer.exe", @_currentWordlistFolder);
         }
+
+        #endregion WPF Buttons
 
         private bool CanGeneratePhrasesValidation()
         {
@@ -260,32 +268,30 @@ namespace DicewareGenerator
             }
         }
 
-        #endregion WPF Buttons
+        //internal static long DiceArrayToInt(int[] numbers)
+        //{
+        //    long result = 0;
+        //    for (int i = 0; i < numbers.Length; i++)
+        //    {
+        //        long multiplier = (long)Math.Pow(10, numbers.Length - 1 - i);
+        //        result += numbers[i] * multiplier;
+        //    }
 
-        internal static long DiceArrayToInt(int[] numbers)
-        {
-            long result = 0;
-            for (int i = 0; i < numbers.Length; i++)
-            {
-                long multiplier = (long)Math.Pow(10, numbers.Length - 1 - i);
-                result += numbers[i] * multiplier;
-            }
+        //    return result;
+        //}
 
-            return result;
-        }
+        //internal int[] RollDice(int dices)
+        //{
+        //    var results = new List<int>();
+        //    for (int i = 0; i < dices; i++) results.Add(RollOneDice());
 
-        internal int[] RollDice(int dices)
-        {
-            var results = new List<int>();
-            for (int i = 0; i < dices; i++) results.Add(RollOneDice());
+        //    return results.ToArray();
+        //}
 
-            return results.ToArray();
-        }
-
-        internal int RollOneDice()
-        {
-            return _rnd.Next(1, 7);
-        }
+        //internal int RollOneDice()
+        //{
+        //    return _rnd.Next(1, 7);
+        //}
 
         internal void SettingsLoad()
         {
@@ -334,16 +340,14 @@ namespace DicewareGenerator
             var rows = new List<string>();
             try
             {
-                using (var sr = new StreamReader(file))
+                using var sr = new StreamReader(file);
+                while (sr.Peek() >= 0)
                 {
-                    while (sr.Peek() >= 0)
-                    {
-                        var x = sr.ReadLine();
-                        if (x != null && !CheckIfLineIsIgnorable(x))
-                            rows.Add(x.Trim());
-                    }
-                    return rows;
+                    var x = sr.ReadLine();
+                    if (x != null && !CheckIfLineIsIgnorable(x))
+                        rows.Add(x.Trim());
                 }
+                return rows;
             }
             catch (Exception)
             {
