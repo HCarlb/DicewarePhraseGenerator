@@ -43,7 +43,7 @@ namespace DicewareGenerator
         private List<ComboBoxItem>? _wordlistItemsSource;
         private string? _wordSeparatorChar;
         private readonly DiceService _diceService;
-        private readonly WordlistReader _wordistReaderService;
+        //private readonly WordlistReader _wordistReaderService;
 
         public bool CanGeneratePhrases => CanGeneratePhrasesValidation();
 
@@ -139,13 +139,16 @@ namespace DicewareGenerator
                 OnPropertyChanged(nameof(SelectedWordlist));
 
                 // Selection changed load a new wordlist
-                if (value != null) LoadNewWordlistAsync(value);
+                if (value?.Value != null)
+                {
+                    LoadNewWordlistAsync((string)value.Value);
+                }
             }
         }
 
-        private async void LoadNewWordlistAsync(ComboBoxItem? comboboxItem)
+        private async void LoadNewWordlistAsync(string fileName)
         {
-            var wordList = await Task.Run(() => WordlistReader.LoadWordlist(comboboxItem.Value.ToString()));
+            var wordList = await Task.Run(() => WordlistReader.LoadWordlist(fileName));
             var diceWordList = await Task.Run(() => WordlistReader.ParseWordlist(wordList));
 
             // Update the loadedwords so the UI is updated
@@ -189,7 +192,7 @@ namespace DicewareGenerator
             InitializeComponent();
             this.DataContext = this;
             _diceService = new();
-            _wordistReaderService = new();
+            //_wordistReaderService = new();
             SettingsLoad();
             WordSeparatorChar = " ";    // Part of a ugly hack because the space " " wont work well stored in the app settings.
             InitializeFilestructure();
@@ -299,20 +302,20 @@ namespace DicewareGenerator
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        private static string? SelectFile()
-        {
-            var ofd = new OpenFileDialog()
-            {
-                Filter = "Text files (*.txt)|*.txt",
-                Multiselect = false,
-            };
+        //private static string? SelectFile()
+        //{
+        //    var ofd = new OpenFileDialog()
+        //    {
+        //        Filter = "Text files (*.txt)|*.txt",
+        //        Multiselect = false,
+        //    };
 
-            if (ofd.ShowDialog() == true)
-            {
-                return ofd.FileName;
-            }
-            return null;
-        }
+        //    if (ofd.ShowDialog() == true)
+        //    {
+        //        return ofd.FileName;
+        //    }
+        //    return null;
+        //}
 
         private string? GetWordFromWordlist(long value)
         {
