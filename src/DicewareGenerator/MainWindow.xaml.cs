@@ -1,4 +1,5 @@
 ﻿using DicewareGenerator.Extensions;
+using DicewareGenerator.Models;
 using DicewareGenerator.Properties;
 using Microsoft.Win32;
 using System;

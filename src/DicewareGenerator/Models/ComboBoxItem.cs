@@ -1,4 +1,4 @@
-﻿namespace DicewareGenerator
+﻿namespace DicewareGenerator.Models
 {
     public class ComboBoxItem
     {
