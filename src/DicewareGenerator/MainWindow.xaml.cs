@@ -216,13 +216,23 @@ namespace DicewareGenerator
                 WordSeparatorChar = " ";
             }
 
-            // Create a stringbuilde to store all the generated phrases
+            // Generate and display the passphrases to the user
+            GeneratedPasswords = GeneratePhrases(diceCount, WordSeparatorChar);
+
+            // Store settings to settings
+            SettingsSave();
+        }
+
+        private string GeneratePhrases(int diceCount, string separator)
+        {
+            // Create a stringbuilder to store all the generated phrases
             var generatedPhrases = new StringBuilder();
 
             for (int i = 0; i < NumberOfPhrasesToGenerate; i++)
             {
                 var phraseList = new List<string>();
                 var phraseIsValid = false;
+                var pp = string.Empty;
 
                 while (!phraseIsValid)
                 {
@@ -234,17 +244,14 @@ namespace DicewareGenerator
                         phraseList.Add(word);
 
                         // Test the phrase so it contain minimum requirements specified by user
-                        phraseIsValid = IsPhraseValid(string.Join(WordSeparatorChar, phraseList));
+                        pp = string.Join(separator, phraseList);
+                        phraseIsValid = IsPhraseValid(pp);
                     }
                 }
-                generatedPhrases.AppendLine(string.Join(WordSeparatorChar, phraseList));
+                generatedPhrases.AppendLine(pp);
             }
 
-            // Store settings to settings
-            SettingsSave();
-
-            // Display the passphrases to the user
-            GeneratedPasswords = generatedPhrases.ToString();
+            return generatedPhrases.ToString();
         }
 
         private void Button_OpenWordlistFolder_Clicked(object sender, RoutedEventArgs e)
@@ -301,21 +308,6 @@ namespace DicewareGenerator
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
-        //private static string? SelectFile()
-        //{
-        //    var ofd = new OpenFileDialog()
-        //    {
-        //        Filter = "Text files (*.txt)|*.txt",
-        //        Multiselect = false,
-        //    };
-
-        //    if (ofd.ShowDialog() == true)
-        //    {
-        //        return ofd.FileName;
-        //    }
-        //    return null;
-        //}
 
         private string? GetWordFromWordlist(long value)
         {
