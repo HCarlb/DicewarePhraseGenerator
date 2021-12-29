@@ -10,12 +10,13 @@ namespace DicewareGenerator.Services
 {
     internal class WordlistReader
     {
-        private static bool CheckIfLineIsIgnorable(string text)
+        internal static bool CheckIfLineIsIgnorable(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return true;
             if (string.IsNullOrEmpty(text)) return true;
             if (text.Trim().Length == 0) return true;
             if (text.Trim()[0..1] == "#") return true;
+            if (text.Split("\t").Length != 2) return true;
             return false;
         }
 
@@ -44,7 +45,7 @@ namespace DicewareGenerator.Services
 
         internal static List<DiceWordModel>? ParseWordlist(List<string>? rowdata, string separator = "\t")
         {
-            if (rowdata == null)
+            if (rowdata == null || rowdata.Count == 0)
                 throw new ArgumentNullException();
 
             var words = new List<DiceWordModel>();
