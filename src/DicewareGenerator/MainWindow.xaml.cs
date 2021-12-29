@@ -24,6 +24,7 @@ namespace DicewareGenerator
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private readonly DiceService _diceService;
+
         //private readonly Random _rnd;
         private string? _currentAppFolder;
 
@@ -276,8 +277,17 @@ namespace DicewareGenerator
 
         private async void LoadNewWordlistAsync(string fileName)
         {
-            var wordList = await Task.Run(() => WordlistReader.LoadWordlist(fileName));
-            var diceWordList = await Task.Run(() => WordlistReader.ParseWordlist(wordList));
+            List<DiceWordModel>? diceWordList = null;
+            try
+            {
+                var wordList = await Task.Run(() => WordlistReader.LoadWordlist(fileName));
+                diceWordList = await Task.Run(() => WordlistReader.ParseWordlist(wordList));
+            }
+            catch (Exception)
+            {
+                // Give user a message here somehow
+                return;
+            }
 
             // Update the loadedwords so the UI is updated
             LoadedWords = diceWordList;
