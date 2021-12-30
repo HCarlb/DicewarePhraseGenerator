@@ -23,6 +23,8 @@ namespace DicewareGenerator
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        private readonly DiceService _diceService;
+
         //private readonly Random _rnd;
         private string? _currentAppFolder;
 
@@ -42,7 +44,6 @@ namespace DicewareGenerator
         private string? _selectedWordlistFile;
         private List<ComboBoxItem>? _wordlistItemsSource;
         private string? _wordSeparatorChar;
-        private readonly DiceService _diceService;
         //private readonly WordlistReader _wordistReaderService;
 
         public bool CanGeneratePhrases => CanGeneratePhrasesValidation();
@@ -146,15 +147,6 @@ namespace DicewareGenerator
             }
         }
 
-        private async void LoadNewWordlistAsync(string fileName)
-        {
-            var wordList = await Task.Run(() => WordlistReader.LoadWordlist(fileName));
-            var diceWordList = await Task.Run(() => WordlistReader.ParseWordlist(wordList));
-
-            // Update the loadedwords so the UI is updated
-            LoadedWords = diceWordList;
-        }
-
         public string? SelectedWordlistFile
         {
             get { return _selectedWordlistFile; }
@@ -197,87 +189,6 @@ namespace DicewareGenerator
             WordSeparatorChar = " ";    // Part of a ugly hack because the space " " wont work well stored in the app settings.
             InitializeFilestructure();
         }
-
-        #region WPF Buttons
-
-        private void Button_GeneratePhrases_Clicked(object sender, RoutedEventArgs e)
-        {
-            if (LoadedWords == null || LoadedWords.Count == 0)
-            {
-                return;
-            }
-
-            // Look at the loeded worldist and learn how many dice that is used to generate words from this wordlist.
-            var diceCount = LoadedWords[0].DiceCount;
-
-            // Check so the user at lease have a character as separator. If not set it to a "space".
-            if (string.IsNullOrEmpty(WordSeparatorChar))
-            {
-                WordSeparatorChar = " ";
-            }
-
-            // Generate and display the passphrases to the user
-            GeneratedPasswords = GeneratePhrases(diceCount, WordSeparatorChar);
-
-            // Store settings to settings
-            SettingsSave();
-        }
-
-        private string GeneratePhrases(int diceCount, string separator)
-        {
-            // Create a stringbuilder to store all the generated phrases
-            var generatedPhrases = new StringBuilder();
-
-            for (int i = 0; i < NumberOfPhrasesToGenerate; i++)
-            {
-                var phraseList = new List<string>();
-                var phraseIsValid = false;
-                var pp = string.Empty;
-
-                while (!phraseIsValid)
-                {
-                    var diceValue = _diceService.GetDiceResult(diceCount);
-                    var word = GetWordFromWordlist(diceValue);
-
-                    if (word != null)
-                    {
-                        phraseList.Add(word);
-
-                        // Test the phrase so it contain minimum requirements specified by user
-                        pp = string.Join(separator, phraseList);
-                        phraseIsValid = IsPhraseValid(pp);
-                    }
-                }
-                generatedPhrases.AppendLine(pp);
-            }
-
-            return generatedPhrases.ToString();
-        }
-
-        private void Button_OpenWordlistFolder_Clicked(object sender, RoutedEventArgs e)
-        {
-            if (_currentWordlistFolder == null)
-                return;
-
-            if (!Directory.Exists(_currentWordlistFolder))
-                Directory.CreateDirectory(_currentWordlistFolder);
-
-            if (Directory.Exists(_currentWordlistFolder))
-                Process.Start("explorer.exe", @_currentWordlistFolder);
-        }
-
-        #endregion WPF Buttons
-
-        #region WPF Form Validation
-
-        private bool CanGeneratePhrasesValidation()
-        {
-            if ((MinWords > 0 || MinCharacters > 0) && (NumberOfPhrasesToGenerate > 0))
-                return true;
-            return false;
-        }
-
-        #endregion WPF Form Validation
 
         internal void SettingsLoad()
         {
@@ -344,7 +255,7 @@ namespace DicewareGenerator
                     }
 
                     WordlistItemsSource = items.OrderBy(x => x.Key).ToList();
-                    if (WordlistItemsSource != null)
+                    if (WordlistItemsSource != null && WordlistItemsSource.Count > 0)
                     {
                         SelectedWordlist = WordlistItemsSource.First();
                     }
@@ -363,5 +274,104 @@ namespace DicewareGenerator
             }
             return false;
         }
+
+        private async void LoadNewWordlistAsync(string fileName)
+        {
+            List<DiceWordModel>? diceWordList = null;
+            try
+            {
+                var wordList = await Task.Run(() => WordlistReader.LoadWordlist(fileName));
+                diceWordList = await Task.Run(() => WordlistReader.ParseWordlist(wordList));
+            }
+            catch (Exception)
+            {
+                // Give user a message here somehow
+                return;
+            }
+
+            // Update the loadedwords so the UI is updated
+            LoadedWords = diceWordList;
+        }
+
+        #region WPF Buttons
+
+        private void Button_GeneratePhrases_Clicked(object sender, RoutedEventArgs e)
+        {
+            if (LoadedWords == null || LoadedWords.Count == 0)
+            {
+                return;
+            }
+
+            // Look at the loeded worldist and learn how many dice that is used to generate words from this wordlist.
+            var diceCount = LoadedWords[0].DiceCount;
+
+            // Check so the user at lease have a character as separator. If not set it to a "space".
+            if (string.IsNullOrEmpty(WordSeparatorChar))
+            {
+                WordSeparatorChar = " ";
+            }
+
+            // Generate and display the passphrases to the user
+            GeneratedPasswords = GeneratePhrases(diceCount, WordSeparatorChar);
+
+            // Store settings to settings
+            SettingsSave();
+        }
+
+        private void Button_OpenWordlistFolder_Clicked(object sender, RoutedEventArgs e)
+        {
+            if (_currentWordlistFolder == null)
+                return;
+
+            if (!Directory.Exists(_currentWordlistFolder))
+                Directory.CreateDirectory(_currentWordlistFolder);
+
+            if (Directory.Exists(_currentWordlistFolder))
+                Process.Start("explorer.exe", @_currentWordlistFolder);
+        }
+
+        private string GeneratePhrases(int diceCount, string separator)
+        {
+            // Create a stringbuilder to store all the generated phrases
+            var generatedPhrases = new StringBuilder();
+
+            for (int i = 0; i < NumberOfPhrasesToGenerate; i++)
+            {
+                var phraseList = new List<string>();
+                var phraseIsValid = false;
+                var pp = string.Empty;
+
+                while (!phraseIsValid)
+                {
+                    var diceValue = _diceService.GetDiceResult(diceCount);
+                    var word = GetWordFromWordlist(diceValue);
+
+                    if (word != null)
+                    {
+                        phraseList.Add(word);
+
+                        // Test the phrase so it contain minimum requirements specified by user
+                        pp = string.Join(separator, phraseList);
+                        phraseIsValid = IsPhraseValid(pp);
+                    }
+                }
+                generatedPhrases.AppendLine(pp);
+            }
+
+            return generatedPhrases.ToString();
+        }
+
+        #endregion WPF Buttons
+
+        #region WPF Form Validation
+
+        private bool CanGeneratePhrasesValidation()
+        {
+            if ((MinWords > 0 || MinCharacters > 0) && (NumberOfPhrasesToGenerate > 0))
+                return true;
+            return false;
+        }
+
+        #endregion WPF Form Validation
     }
 }

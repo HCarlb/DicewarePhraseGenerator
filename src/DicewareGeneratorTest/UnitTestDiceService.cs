@@ -6,7 +6,7 @@ using System.Linq;
 namespace DicewareGeneratorTest
 {
     [TestClass]
-    public class UnitTest1
+    public class UnitTestDiceService
     {
         private DiceService? _diceService = null;
 
@@ -25,8 +25,6 @@ namespace DicewareGeneratorTest
             var expectedMin = 1;
             var expectedMax = 6;
 
-            // Roll a whole lot of dice and expec att least one of them to be min and one max.
-
             var ds = GetDiceService();
             if (ds == null)
             {
@@ -34,6 +32,7 @@ namespace DicewareGeneratorTest
                 return;
             }
 
+            // Roll a lot of dice and expect att least one of them to be min and one max.
             var results = ds.RollDice(100);
             if (results == null)
             {
