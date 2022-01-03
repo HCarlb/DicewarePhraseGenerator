@@ -277,10 +277,11 @@ namespace DicewareGenerator
 
         private async void LoadNewWordlistAsync(string fileName)
         {
-            List<DiceWordModel>? diceWordList = null;
+            IEnumerable<DiceWordModel>? diceWordList = null;
             try
             {
                 var wordList = await Task.Run(() => WordlistReader.LoadWordlist(fileName));
+                ArgumentNullException.ThrowIfNull(wordList);
                 diceWordList = await Task.Run(() => WordlistReader.ParseWordlist(wordList));
             }
             catch (Exception)
@@ -290,7 +291,8 @@ namespace DicewareGenerator
             }
 
             // Update the loadedwords so the UI is updated
-            LoadedWords = diceWordList;
+            ArgumentNullException.ThrowIfNull(diceWordList);
+            LoadedWords = diceWordList.ToList();
         }
 
         #region WPF Buttons

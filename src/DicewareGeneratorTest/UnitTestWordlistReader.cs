@@ -23,8 +23,7 @@ namespace DicewareGeneratorTest
                 Word = "testword",
             };
 
-            var wr = new WordlistReader();
-            var result = wr.GetDiceCount(input);
+            var result = WordlistReader.GetDiceCount(input);
 
             Assert.AreEqual(expected, result);
         }
