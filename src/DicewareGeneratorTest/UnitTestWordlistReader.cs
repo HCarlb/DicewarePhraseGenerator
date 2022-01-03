@@ -12,22 +12,21 @@ namespace DicewareGeneratorTest
     [TestClass]
     public class UnitTestWordlistReader
     {
-        [TestMethod]
-        public void WordlistReader_VerifyDiceCount()
-        {
-            long expected = 6;
+        //[TestMethod]
+        //public void WordlistReader_VerifyDiceCount()
+        //{
+        //    long expected = 6;
 
-            var input = new DiceWordModel
-            {
-                DiceValues = 123456,
-                Word = "testword",
-            };
+        //    var input = new DiceWordModel
+        //    {
+        //        DiceValues = 123456,
+        //        Word = "testword",
+        //    };
 
-            var wr = new WordlistReader();
-            var result = wr.GetDiceCount(input);
+        //    var result = WordlistReader.GetDiceCount(input);
 
-            Assert.AreEqual(expected, result);
-        }
+        //    Assert.AreEqual(expected, result);
+        //}
 
         [TestMethod]
         public void WordlistReader_DetectIgnorableLines()

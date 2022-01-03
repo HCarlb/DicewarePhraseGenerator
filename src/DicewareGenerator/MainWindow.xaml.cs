@@ -2,7 +2,6 @@
 using DicewareGenerator.Models;
 using DicewareGenerator.Properties;
 using DicewareGenerator.Services;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,16 +23,10 @@ namespace DicewareGenerator
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private readonly DiceService _diceService;
-
-        //private readonly Random _rnd;
         private string? _currentAppFolder;
-
         private string? _currentWordlistFolder;
-
-        //private int _diceCount;
         private string? _generatedPasswords;
-
-        private List<DiceWordModel>? _loadedWords;
+        private Dictionary<long, string>? _loadedWords;
         private int _minCharacters;
         private int _minNumeric;
         private int _minSpecial;
@@ -44,7 +37,6 @@ namespace DicewareGenerator
         private string? _selectedWordlistFile;
         private List<ComboBoxItem>? _wordlistItemsSource;
         private string? _wordSeparatorChar;
-        //private readonly WordlistReader _wordistReaderService;
 
         public bool CanGeneratePhrases => CanGeneratePhrasesValidation();
 
@@ -58,7 +50,7 @@ namespace DicewareGenerator
             }
         }
 
-        public List<DiceWordModel>? LoadedWords
+        public Dictionary<long, string>? LoadedWords
         {
             get { return _loadedWords; }
             set
@@ -222,7 +214,7 @@ namespace DicewareGenerator
 
         private string? GetWordFromWordlist(long value)
         {
-            return LoadedWords?.Where(x => x.DiceValues == value).Select(x => x.Word).SingleOrDefault();
+            return LoadedWords?[value];
         }
 
         private void InitializeFilestructure()
@@ -277,19 +269,13 @@ namespace DicewareGenerator
 
         private async void LoadNewWordlistAsync(string fileName)
         {
-            List<DiceWordModel>? diceWordList = null;
-            try
-            {
-                var wordList = await Task.Run(() => WordlistReader.LoadWordlist(fileName));
-                diceWordList = await Task.Run(() => WordlistReader.ParseWordlist(wordList));
-            }
-            catch (Exception)
-            {
-                // Give user a message here somehow
-                return;
-            }
+            var wordListLines = await Task.Run(() => WordlistReader.LoadWordlist(fileName));
+
+            ArgumentNullException.ThrowIfNull(wordListLines);
+            var diceWordList = await Task.Run(() => WordlistReader.ParseWordlist(wordListLines));
 
             // Update the loadedwords so the UI is updated
+            ArgumentNullException.ThrowIfNull(diceWordList);
             LoadedWords = diceWordList;
         }
 
@@ -303,7 +289,7 @@ namespace DicewareGenerator
             }
 
             // Look at the loeded worldist and learn how many dice that is used to generate words from this wordlist.
-            var diceCount = LoadedWords[0].DiceCount;
+            var diceCount = LoadedWords.First().Key.ToString().Length;
 
             // Check so the user at lease have a character as separator. If not set it to a "space".
             if (string.IsNullOrEmpty(WordSeparatorChar))
