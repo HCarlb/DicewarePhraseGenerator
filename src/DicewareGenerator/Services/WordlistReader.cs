@@ -36,9 +36,11 @@ namespace DicewareGenerator.Services
             }
         }
 
-        internal static IEnumerable<DiceWordModel>? ParseWordlist(IEnumerable<string> rowdata, string separator = "\t")
+        internal static Dictionary<long, string> ParseWordlist(IEnumerable<string> rowdata, string separator = "\t")
         {
             ArgumentNullException.ThrowIfNull(rowdata);
+
+            var result = new Dictionary<long, string>();
 
             foreach (var row in rowdata)
             {
@@ -48,17 +50,10 @@ namespace DicewareGenerator.Services
                 if (rowData.Length != 2)
                     continue;
 
-                yield return new DiceWordModel()
-                {
-                    DiceValues = long.Parse(rowData[0]),
-                    Word = rowData[1].Trim(),
-                };
+                result.Add(long.Parse(rowData[0]), rowData[1].Trim());
             }
-        }
 
-        internal static int GetDiceCount(DiceWordModel diceWord)
-        {
-            return diceWord.DiceCount;
+            return result;
         }
     }
 }
