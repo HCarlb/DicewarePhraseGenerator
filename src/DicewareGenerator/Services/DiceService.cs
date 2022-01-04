@@ -1,68 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("DicewareGeneratorTest")]
 
-[assembly: InternalsVisibleTo("DicewareGeneratorTest")]
+namespace DicewareGenerator.Services;
 
-namespace DicewareGenerator.Services
+internal class DiceService
 {
-    internal class DiceService
+    private readonly Random _rnd;
+
+    public DiceService()
     {
-        private readonly Random _rnd;
+        _rnd = new Random();
+    }
 
-        public DiceService()
+    internal static long DiceArrayToInt(int[]? numbers)
+    {
+        if (numbers == null)
+            return 0;
+
+        long result = 0;
+        for (int i = 0; i < numbers.Length; i++)
         {
-            _rnd = new Random();
+            long multiplier = (long)Math.Pow(10, numbers.Length - 1 - i);
+            result += numbers[i] * multiplier;
         }
 
-        internal static long DiceArrayToInt(int[]? numbers)
+        return result;
+    }
+
+    internal int[]? RollDice(int dices)
+    {
+        List<int>? results = null;
+        for (int i = 0; i < dices; i++)
         {
-            if (numbers == null)
-                return 0;
-
-            long result = 0;
-            for (int i = 0; i < numbers.Length; i++)
-            {
-                long multiplier = (long)Math.Pow(10, numbers.Length - 1 - i);
-                result += numbers[i] * multiplier;
-            }
-
-            return result;
-        }
-
-        internal int[]? RollDice(int dices)
-        {
-            List<int>? results = null;
-            for (int i = 0; i < dices; i++)
-            {
-                if (results == null)
-                {
-                    results = new List<int>();
-                }
-
-                results.Add(RollDie());
-            }
-
             if (results == null)
-                return null;
+            {
+                results = new List<int>();
+            }
 
-            return results.ToArray();
+            results.Add(RollDie());
         }
 
-        internal int RollDie()
-        {
-            return _rnd.Next(1, 7); // generates values from 1 to 6.
-        }
+        if (results == null)
+            return null;
 
-        internal long GetDiceResult(int numDices)
-        {
-            if (numDices <= 0)
-                return 0;
+        return results.ToArray();
+    }
 
-            var arr = RollDice(numDices);
-            var result = DiceArrayToInt(arr);
+    internal int RollDie()
+    {
+        return _rnd.Next(1, 7); // generates values from 1 to 6.
+    }
 
-            return result;
-        }
+    internal long GetDiceResult(int numDices)
+    {
+        if (numDices <= 0)
+            return 0;
+
+        var arr = RollDice(numDices);
+        var result = DiceArrayToInt(arr);
+
+        return result;
     }
 }
