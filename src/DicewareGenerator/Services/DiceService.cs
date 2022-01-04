@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-
-[assembly: InternalsVisibleTo("DicewareGeneratorTest")]
+﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("DicewareGeneratorTest")]
 
 namespace DicewareGenerator.Services;
 

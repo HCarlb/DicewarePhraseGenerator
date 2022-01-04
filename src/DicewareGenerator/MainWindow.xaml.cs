@@ -2,15 +2,11 @@
 using DicewareGenerator.Models;
 using DicewareGenerator.Properties;
 using DicewareGenerator.Services;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+
 using System.Windows;
 
 [assembly: InternalsVisibleTo("DicewareGeneratorTest")]
@@ -42,7 +38,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public string? GeneratedPasswords
     {
-        get { return _generatedPasswords; }
+        get
+        {
+            return _generatedPasswords;
+        }
         set
         {
             _generatedPasswords = value;
@@ -52,7 +51,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public Dictionary<long, string>? LoadedWords
     {
-        get { return _loadedWords; }
+        get
+        {
+            return _loadedWords;
+        }
         set
         {
             _loadedWords = value;
@@ -62,7 +64,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public int MinCharacters
     {
-        get { return _minCharacters; }
+        get
+        {
+            return _minCharacters;
+        }
         set
         {
             _minCharacters = value;
@@ -73,7 +78,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public int MinNumeric
     {
-        get { return _minNumeric; }
+        get
+        {
+            return _minNumeric;
+        }
         set
         {
             _minNumeric = value;
@@ -83,7 +91,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public int MinSpecial
     {
-        get { return _minSpecial; }
+        get
+        {
+            return _minSpecial;
+        }
         set
         {
             _minSpecial = value;
@@ -93,7 +104,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public int MinUppercase
     {
-        get { return _minUppercase; }
+        get
+        {
+            return _minUppercase;
+        }
         set
         {
             _minUppercase = value;
@@ -103,7 +117,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public int MinWords
     {
-        get { return _minWords; }
+        get
+        {
+            return _minWords;
+        }
         set
         {
             _minWords = value;
@@ -114,7 +131,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public int NumberOfPhrasesToGenerate
     {
-        get { return _numberOfPhrasesToGenerate; }
+        get
+        {
+            return _numberOfPhrasesToGenerate;
+        }
         set
         {
             _numberOfPhrasesToGenerate = value;
@@ -125,7 +145,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public ComboBoxItem? SelectedWordlist
     {
-        get { return _selectedComboBoxItem; }
+        get
+        {
+            return _selectedComboBoxItem;
+        }
         set
         {
             _selectedComboBoxItem = value;
@@ -141,7 +164,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public string? SelectedWordlistFile
     {
-        get { return _selectedWordlistFile; }
+        get
+        {
+            return _selectedWordlistFile;
+        }
         set
         {
             _selectedWordlistFile = value;
@@ -151,7 +177,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public List<ComboBoxItem>? WordlistItemsSource
     {
-        get { return _wordlistItemsSource; }
+        get
+        {
+            return _wordlistItemsSource;
+        }
         set
         {
             _wordlistItemsSource = value;
@@ -161,7 +190,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public string? WordSeparatorChar
     {
-        get { return _wordSeparatorChar; }
+        get
+        {
+            return _wordSeparatorChar;
+        }
         set
         {
             _wordSeparatorChar = value;
