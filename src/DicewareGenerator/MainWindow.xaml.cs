@@ -19,6 +19,7 @@ namespace DicewareGenerator;
 public partial class MainWindow : Window, INotifyPropertyChanged
 {
     private readonly DiceService _diceService;
+    private decimal _capitalsLevel;
     private string? _currentAppFolder;
     private string? _currentWordlistFolder;
     private string? _generatedPasswords;
@@ -36,6 +37,18 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public bool CanGeneratePhrases => CanGeneratePhrasesValidation();
 
+    public decimal CapitalsLevel
+    {
+        get
+        {
+            return _capitalsLevel;
+        }
+        set
+        {
+            _capitalsLevel = value;
+            OnPropertyChanged(nameof(CapitalsLevel));
+        }
+    }
     public string? GeneratedPasswords
     {
         get
@@ -61,7 +74,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             OnPropertyChanged(nameof(LoadedWords));
         }
     }
-
     public int MinCharacters
     {
         get
